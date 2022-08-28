@@ -29,8 +29,8 @@ exports.handler = async (event, context) => {
       event.requestContext.domainName + '/' + event.requestContext.stage,
   })
 
-  for (const { connectionId } of roomMembers) {
-    console.log(`connectionId: ${JSON.stringify(connectionId)}`)
+  for (const member of roomMembers) {
+    console.log(`connectionId: ${JSON.stringify(member.connectionId)}`)
     try {
       const message = {
         type: 'unjoin',
@@ -41,14 +41,14 @@ exports.handler = async (event, context) => {
       }
       await apigwManagementApi
         .postToConnection({
-          ConnectionId: connectionId,
+          ConnectionId: member.connectionId,
           Data: JSON.stringify(message),
         })
         .promise()
     } catch (e) {
       if (e.statusCode === 410) {
-        console.log(`Found stale connection, deleting ${connectionId}`)
-        await user.remove(roomId, connectionId)
+        console.log(`Found stale connection, deleting ${member.connectionId}`)
+        await user.remove(roomId, member.connectionId)
       } else {
         console.error(`e: ${JSON.stringify(e)}`)
         throw e
