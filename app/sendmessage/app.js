@@ -21,7 +21,7 @@ exports.handler = async (event, context) => {
 
   const { data, forward } = JSON.parse(event.body)
   const message = {
-    connectionId,
+    sendId: connectionId,
     ...data,
   }
   console.log(`message: ${JSON.stringify(message)} forward: ${forward}`)
@@ -31,7 +31,10 @@ exports.handler = async (event, context) => {
     await apigwManagementApi
       .postToConnection({
         ConnectionId: connectionId,
-        Data: JSON.stringify(message),
+        Data: JSON.stringify({
+          ...data,
+          connectionId
+        }),
       })
       .promise()
   } else {
